@@ -42,9 +42,14 @@
 					#### 2019.03.08
 				</section>
 				<section>
-					<span class="fragment highlight-red">异步</span>是Javascript区别于其他编程语言的一个优秀的特性。
+					<span style="color: red">异步</span>是Javascript区别于其他编程语言的一个优秀的特性。
 					
 					<p class="fragment fade-in">由于JS是单线程执行的，如果没有引入异步，站点页面的性能将会是一个难以解决的、致命的问题。</p>
+					<aside class="notes">
+						<p>异步，JS的优秀特性之一。</p>
+						<p>JS是单线程执行的。</p>
+						<p>假如我们有一个这样的需求。</p>
+					</aside>
 				</section>
 				<section>
 					<h2>业务场景</h2>
@@ -53,70 +58,97 @@
 					<p class="fragment grow">3.	再读取文件 c.txt，获取到数据 dataC = 3;</p>
 					<p class="fragment grow">4.	求和：sum = dataA + dataB + dataC = 6。</p>
 					<span class="fragment highlight-red">它们是顺序依赖的。</span>
-					<blockquote class="fragment"> (一个耗时不可知的I/O任务、http请求或文件读取都是可能会遇到的场景，这里以文件读取为例)</blockquote>
-				</section>
-				<section data-markdown>
-					- 事件回调
-					- 发布/订阅模式
-					- Promise
-					- Generator
-					- Async/Await
-				</section>
-				<section data-markdown>
-					## 1. 事件回调
+					<blockquote class="fragment"> (一个耗时不可知的 I/O 任务、http请求或文件读取都是可能会遇到的场景，这里以文件读取为例)</blockquote>
 
-					事件（event）与回调（callback）在JS中随处可见，回调是常用的解决异步的方法，易于理解，在许多库与函数中也容易实现。
+					<aside class="notes">
+						<p>这个需求的业务场景</p>
+						<p>注意，它们是有顺序要求的</p>
+						<p>毫无疑问，任务是异步</p>
+						<p>那么，我们都有哪些异步的方案来处理呢</p>
+					</aside>
 				</section>
 				<section>
-					<h2>来，看代码</h2>
+					<ul>
+						<li>事件回调</li>
+						<li>发布/订阅模式</li>
+						<li>Promise</li>
+						<li>Generator</li>
+						<li>Async/Await</li>
+					</ul>
+
+					<aside class="notes">
+						我们一个一个说
+					</aside>
 				</section>
 				<section>
-					<pre><code class="hljs" data-trim contenteditable>
+					<section>
+						<h2>1. 事件回调</h2>
+
+						事件（event）与回调（callback）在JS中随处可见，回调是常用的解决异步的方法，易于理解，在许多库与函数中也容易实现。
+						<aside class="notes">
+							<p>如果对jQuery比较熟悉的同学应该对回调也不会陌生</p>
+							<p>那么，我们如何用回调来解决刚才说的那个需求呢</p>
+						</aside>
+					</section>
+					<section data-background-video="assert/code05.mp4" data-background-video-loop>
+						<h2>来，看代码</h2>
+					</section>
+					<section>
+						<pre><code class="hljs" data-trim contenteditable>
 const fs = require('fs');
 
-fs.readFile('a.txt', {encoding: 'utf8'}, function(err, dataA){
+fs.readFile('a.txt', {encoding: 'utf8'}, function(err, dataA) {
   if(err) throw Error('fail');
   console.log('a.txt data is %d', dataA);
 
-  fs.readFile('b.txt', {encoding: 'utf8'}, function(err, dataB){
+  fs.readFile('b.txt', {encoding: 'utf8'}, function(err, dataB) {
     if(err) throw Error('fail');
     console.log('b.txt data is %d', dataB);
 
-    fs.readFile('c.txt', {encoding: 'utf8'}, function(err, dataC){
+    fs.readFile('c.txt', {encoding: 'utf8'}, function(err, dataC) {
       if(err) throw Error('fail');
       console.log('c.txt data is %d', dataC);
       console.log('sum is %d', parseInt(dataA) + parseInt(dataB) + parseInt(dataC));
     })
   })
 });
-					</code></pre>
-					<p>或者点击 <a href="http://softwaremaniacs.org/soft/highlight/en/description/">这里</a> 查看该段代码</p>
-				</section>
-				<section>
-					<p>readFile()会在文件 I/O 返回结果之后触发回调函数，通过这种<span class="fragment highlight-red">嵌套</span>的方式，
-						我们能够保证文件是<span class="fragment highlight-red">按序读取</span>的。</p>
-					<br>
-					<p class="fragment fade-in">类似的常见操作：定时器setInterval()、setTimeout()。</p>
-					<blockquote class="fragment fade-in">jQuery 里面存在大量的使用</blockquote>
-					<br>
-					<p class="fragment fade-in">优点：易于理解</p>
-					<p class="fragment fade-in">缺点：层层嵌套使得代码逐层缩进，严重降低了可读性，随之产生了【回调金字塔】</p>
+						</code></pre>
+						<p>或者点击 <a href="https://github.com/tanhaican/share/blob/master/Lession_1/demo/callback.js" target="_blank">这里</a> 查看该段代码</p>
+					</section>
+					<section>
+						<p>readFile()会在文件 I/O 返回结果之后触发回调函数，通过这种<span class="fragment highlight-red">嵌套</span>的方式，
+							我们能够保证文件是<span class="fragment highlight-red">按序读取</span>的。</p>
+						<br>
+						<p class="fragment fade-in">类似的常见操作：定时器setInterval()、setTimeout() 等</p>
+						<blockquote class="fragment fade-in">jQuery 里面存在大量的使用</blockquote>
+						<br>
+						<p>优点：<span class="fragment fade-in">简单、容易理解和部署</span></p>
+						<p>缺点：<span class="fragment fade-in">不利于代码的阅读和维护，各个部分之间高度耦合（Coupling），流程会很混乱，而且每个任务只能指定一个回调函数。</span></p>
+						<aside class="notes">
+							<p>“嵌套”的方式保证按序读取  </p>
+							<p>另外，就像刚提到的，jQuery里面有大量的使用</p>
+							<p>优点当然就是简单、容易理解</p>
+							<p>缺点也很明显。</p>
+							<p>而且，容易产生回调地狱</p>
+						</aside>
+					</section>
 				</section>
 
-				<section data-markdown>
-					## 2. 发布/订阅模式
+				<section>
+					<section data-markdown>
+						## 2. 发布/订阅模式
 
-					事件回调是通过触发实现的，而发布/订阅（pub/sub）模式实现的原理与事件回调基本一致。
-				</section>
-				<section>		
-					和事件回调机制一样，发布/订阅模式需要提供回调函数（订阅），不同的是事件回调机制是<b style="color:red">自行触发</b>，
-					而发布/订阅模式把触发权限 <b style="color:red">交给了开发者</b> ，因此你可以选择在任意时刻触发回调（发布）。
-				</section>
-				<section>
-					<h2>来，看代码</h2>
-				</section>
-				<section>
-					<pre><code class="hljs" data-trim contenteditable>
+						事件回调是通过触发实现的，而发布/订阅（pub/sub）模式实现的原理与事件回调基本一致。
+					</section>
+					<section>		
+						和事件回调机制一样，发布/订阅模式需要提供回调函数（订阅），不同的是事件回调机制是<b style="color:red">自行触发</b>，
+						而发布/订阅模式把触发权限 <b style="color:red">交给了开发者</b> ，因此你可以选择在任意时刻触发回调（发布）。
+					</section>
+					<section data-background="assert/code02.gif">
+						<h2>来，看代码</h2>
+					</section>
+					<section>
+						<pre><code class="hljs" data-trim contenteditable>
 const events = require('events');
 const fs = require('fs');
 const eventEmitter = new events.EventEmitter();
@@ -145,9 +177,223 @@ eventEmitter.on('next', function (data) {
 
 // 触发自定义事件执行
 eventEmitter.emit('next', 0);
-          			</code></pre>
-          			<p>或者点击 <a href="http://softwaremaniacs.org/soft/highlight/en/description/">这里</a> 查看该段代码</p>
-  				</section>
+									</code></pre>
+									<p>或者点击 <a href="https://github.com/tanhaican/share/blob/master/Lession_1/demo/observer.js" target="_blank">这里</a> 查看该段代码</p>
+					</section>
+					<section>
+						<p>优点：<span class="fragment fade-in">比较容易理解，可以绑定多个事件，每个事件可以指定多个回调函数，而且可以“去耦合”，有利于实现模块化</span></p>
+						<br>
+						<p>缺点：<span class="fragment fade-in">整个程序都要变成事件驱动型，运行流程会变得很不清晰</span></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>3. Promise</h2>
+
+						Promise 对象是 JavaScript 的异步操作解决方案，为异步操作提供统一接口。它起到<font color="red">代理作用（proxy），充当异步操作与回调函数之间的中介</font>，
+						使得异步操作具备同步操作的接口。Promise 可以让异步操作写起来就像在写同步操作的流程，而不必一层层地嵌套回调函数。
+						<aside class="notes">
+							<p>真正的异步方案</p>
+							<p>那么，我们怎么用 Promise 方案来解决我们开始提出的需求呢</p>
+						</aside>
+					</section>
+					<section data-background="assert/code04.gif">
+						<h2>来，看代码</h2>
+					</section>
+					<section>
+							<pre><code class="hljs" data-trim contenteditable>
+const fs = require('fs');
+
+new Promise(function(resolve, reject){
+  fs.readFile('a.txt', {encoding: 'utf8'}, function(err, newData){
+    if(err) reject('fail');
+    console.log('a.txt data is %d', newData);
+
+    resolve(newData);
+  });
+}).then(function(data){
+  // 返回一个新的 promise 对象，使得下一个回调函数会等待该异步操作完成
+  return new Promise(function(resolve, reject){
+    fs.readFile('b.txt', {encoding: 'utf8'}, function(err, newData){
+      if(err) reject('fail');
+      console.log('b.txt data is %d', newData);
+
+      resolve(parseInt(data)+parseInt(newData));
+    });
+  });
+}).then(function(data){
+  return new Promise(function(resolve, reject){
+    fs.readFile('c.txt', {encoding: 'utf8'}, function(err, newData){
+      if(err) reject('fail');
+      console.log('c.txt data is %d', newData);
+
+      resolve(parseInt(data)+parseInt(newData));
+    });
+  });
+}).then(function(data){
+  console.log('sum is %d', parseInt(data));
+}).catch(function(err){
+  throw Error('fail');
+});
+							</code></pre>
+							<p>或者点击 <a href="https://github.com/tanhaican/share/blob/master/Lession_1/demo/promise.js" target="_blank">这里</a> 查看该段代码，
+								另有<a href="https://github.com/tanhaican/share/blob/master/Lession_1/demo/promise2.js" target="_blank">简化版</a>供参考。</p>
+					</section>
+					<section>
+						<p>优点：<span class="fragment fade-in">按照这种方式编写的<font color="red">代码逻辑和业务逻辑是一致的</font>，保证了代码的<font color="red">可读性</font></span></p>
+						<p>缺点：<span class="fragment fade-in">代码中出现了一堆的 then 和 catch 方法，这些代码是业务逻辑之外的代码，是影响阅读、不应该出现的</span></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2> 4. Generator</h2>
+
+						<h4> Generator 函数是 ES6 标准引入的新特性，旨在提供一类完全不同于以往异步编写方式的解决方案。</h4>
+						<blockquote>Generator 函数是一个状态机，封装了多个内部状态。Generator 函数提供了一种机制，
+							通过 <font color="red">yield</font> 关键字和 <font color="red">next()</font> 方法来交付和归还线程执行权，
+							实现代码异步。<a href="https://link.jianshu.com/?t=http://es6.ruanyifeng.com/#docs/generator" target="_blank">Generator函数的语法 - 阮一峰</a></blockquote>
+							<aside class="notes">
+								<p>继续看我们怎么用这种方案来解决我们开始提出的需求</p>
+							</aside>
+					</section>
+					<section data-background="assert/code01.gif">
+						<h2>来，看代码</h2>
+					</section>
+					<section>
+						<pre><code class="hljs" data-trim contenteditable>
+const fs = require('fs');
+
+const readData = function (fileName) {
+  return new Promise(function (resolve, reject) {
+    fs.readFile(fileName, {
+      encoding: 'utf8'
+    }, function (err, data) {
+      if (err) throw Error('fail');
+      resolve(data);
+    })
+  });
+}
+
+const genFun = function* () { // generator 函数特殊写法
+  try {
+    // yield 在暂停时刻并没有赋值，dataA 的值是在重新执行时刻由 next 方法的参数传入的
+    let dataA = yield readData('a.txt'); // 状态1
+    console.log('a.txt data is %d', dataA);
+    let dataB = yield readData('b.txt'); // 状态2
+    console.log('b.txt data is %d', dataB);
+    let dataC = yield readData('c.txt'); // 状态3
+    console.log('c.txt data is %d', dataC);
+
+    console.log('sum is %d', parseInt(dataA) + parseInt(dataB) + parseInt(dataC));
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+// 驱动 Generator 执行
+function run(generator) {
+  let it = generator();
+
+  function go(result) {
+    // 判断是否遍历完成，标志位 result.done 为 true 表示遍历完成
+    if (result.done) 
+      return result.value;
+
+    // result.value 即为返回的 promise 对象
+    return result.value.then(function (value) {
+      return go(it.next(value));
+    }, function (error) {
+      return go(it.throw(error));
+    });
+  }
+
+  go(it.next()); // 【关键方法 - next】移向下一个状态
+}
+
+run(genFun);
+						</code></pre>
+						<p>或者点击 <a href="https://github.com/tanhaican/share/blob/master/Lession_1/demo/generator.js" target="_blank">这里</a> 查看该段代码。
+						<aside class="notes">
+							<p>定义 generator 函数</p>
+							<p>定义一个 run函数 作为驱动</p>
+							<p>在上一个 状态 异步任务完成之后才进入下一个状态，如此保证 有序读取。</p>
+						</aside>
+					</section>
+					<section>
+						<p>优点：<span class="fragment fade-in">Generator函数里面的异步代码简直跟同步编写的一模一样。</span></p>
+						<p>缺点：<span class="fragment fade-in">交由各位看官评断</span></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>5. Async/Await</h2>
+
+						<h4>ES7标准引入的 Async/Await 语法，可以说是JS异步编程的最佳实现。</h4>
+						<blockquote>Async/Await 语法本质上只是 Generator 函数的语法糖，像 co 一样，它内置了 Generator 函数的自动执行器，并且支持更简洁更清晰的异步写法。</blockquote>
+						<aside class="notes">
+							<p>co 是 node.js里面的一个库，主要用做 Generator函数的驱动</p>
+						</aside>
+					</section>
+					<section data-background="assert/code03.gif">
+						<h2>来，看代码</h2>
+					</section>
+					<section>
+						<pre><code class="hljs" data-trim contenteditable>
+const fs = require('fs');
+
+// 封装成 await 语句期望的 promise 对象
+const readFile = function () {
+  let args = arguments;
+  return new Promise(function (resolve, reject) {
+    fs.readFile(...args, function (err, data) {
+      // await 会吸收 resolve 传入的值作为返回值赋给变量
+      resolve(data);
+    })
+  })
+};
+
+const asyncReadFile = async function () {
+  let dataA = await readFile('a.txt', {
+    encoding: 'utf8'
+  });
+  console.log('a.txt data is %d', dataA);
+  let dataB = await readFile('b.txt', {
+    encoding: 'utf8'
+  });
+  console.log('b.txt data is %d', dataB);
+  let dataC = await readFile('c.txt', {
+    encoding: 'utf8'
+  });
+  console.log('c.txt data is %d', dataC);
+  console.log('sum is %d', parseInt(dataA) + parseInt(dataB) + parseInt(dataC));
+};
+
+asyncReadFile();
+						</code></pre>
+						<p>或者点击 <a href="https://github.com/tanhaican/share/blob/master/Lession_1/demo/await.js" target="_blank">这里</a> 查看该段代码。</p>
+					</section>
+					<section>
+						<p>
+							优点：
+							<ul class="fragment fade-in">
+								<li>以上看起来像同步的代码确实是异步的。</li>
+								<li>代码简洁，冗余少</li>
+								<li>可读性更佳</li>
+								<li>...</li>
+							</ul>
+						</p>
+						<p>缺点：<span class="fragment fade-in">依旧是你说了算</span></p>
+					</section>
+				</section>
+
+				<section data-markdown data-background-video="assert/giphy.mp4" data-background-video-loop>
+					## 感谢大家的倾听
+
+					> 本教程的PPT使用 [Reveal.js](https://github.com/hakimel/reveal.js) 编写
+				</section>
 			</div>
 		</div>
 
@@ -167,7 +413,7 @@ eventEmitter.emit('next', 0);
 				progress: true,
 				history: true,
 				center: true,
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				transition: 'convex', // none/fade/slide/convex/concave/zoom
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
 					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
